@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 // Ini handler home yang dibuat sebagai function.
 // Isinya  hanya sebuah string saja.
 func home(w http.ResponseWriter, r *http.Request) {
-
 	// Karena bersifat catch-all maka setiap endpoint yang
 	// diakhiri dengan "/" akan langsung di route ke dalam function home
 	// bisa diatasi dengan conditional
@@ -19,6 +19,22 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
+	// Pertama kita baca dulu dan parsing terlebih dahulu file home.page.tmpl
+	// Jika ternyata hasilnya bukan nil maka tampilkan errornya
+	ts, err := template.ParseFiles("./ui/html/home.page.tmpl")
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", 500)
+		return
+	}
+
+	err = ts.Execute(w, nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal server error", 500)
+	}
+
 	w.Write([]byte("Hello From Snippetbox! Bro"))
 }
 
@@ -61,21 +77,4 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("Creating new snippet..."))
-}
-
-func main() {
-	// Mendeklarasikan sebuah variabel mux yang berisikan http.NewServeMux().
-	// Terus memasukkan function home pada root "/".
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", home)
-	// Menambahkan endpoint /snippet dan /snippet/create ke dalam webserver
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
-
-	// Disini menggunakan log untuk mengeluarkan log mulai di server pada port 3000
-	// Untuk menjalankan webserver menggunakan http.ListenAndServe()
-	// Mengisikan nilai portnya kemudian variabel yang berisikan ServeMux() => mux
-	log.Println("Starting server di port : 3000")
-	err := http.ListenAndServe(":3000", mux)
-	log.Fatal(err)
 }
