@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // Ini handler home yang dibuat sebagai function.
@@ -23,7 +25,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 // Ini sebuah function yang bertindak sebagai handler
 // untuk routing ke endpoint /snippet
 func showSnippet(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hellow from show snippet route!"))
+	// Disini menggunakan strconv.Atoi untuk mengekstrasi urlnya
+	// terus mendapatkan query dengan prameter id
+	// kemudian perlu pengecekan apakah errnya bukan nil
+	// dan nilai id harus lebih dari 0 atau positif.
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+	// Print response sesuai dengan id yang didapatkan lewat query parameter
+	fmt.Fprintf(w, "Display spesific snippet from id %d", id)
+	// Menuliskan basic pada route saja
+	// w.Write([]byte("Hellow from show snippet route!"))
 }
 
 // Ini sebuah function yang bertindak sebagai handler
