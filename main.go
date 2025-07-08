@@ -40,8 +40,10 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Allow", "POST")
 		// Harus menuliskan WriteHeader terlebih dahulu baru Write
 		// Jika tidak maka akan otomatis dibaca sebagai status code 200 (success)
-		w.WriteHeader(405)
-		w.Write([]byte("Method not allowed!"))
+		// w.WriteHeader(405)
+		// w.Write([]byte("Method not allowed!"))
+		// menggunakan http.Error() untuk langsung memberikan response code, dan body messagenya
+		http.Error(w, "Method not allowed!", 405)
 		return
 	}
 	w.Write([]byte("Creating new snippet..."))
