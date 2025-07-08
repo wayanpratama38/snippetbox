@@ -29,6 +29,21 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 // Ini sebuah function yang bertindak sebagai handler
 // untuk routing ke endpoint /snippet/create
 func createSnippet(w http.ResponseWriter, r *http.Request) {
+
+	// Menggunakan r.Method untuk mengecek method apa yang digunakan
+	// jika method yang digunakan bukan POST maka akan
+	// mengembalikan response 405 (method not allowed)
+	if r.Method != "POST" {
+		// Tambahkan di header kalau yang diperbolehkan hanya method POST
+		// Maka ketika user mendapatkan response 405 (method not allowed)
+		// Dia mengetahui bahwa hanya bisa menggunakan method POST saja
+		w.Header().Set("Allow", "POST")
+		// Harus menuliskan WriteHeader terlebih dahulu baru Write
+		// Jika tidak maka akan otomatis dibaca sebagai status code 200 (success)
+		w.WriteHeader(405)
+		w.Write([]byte("Method not allowed!"))
+		return
+	}
 	w.Write([]byte("Creating new snippet..."))
 }
 
